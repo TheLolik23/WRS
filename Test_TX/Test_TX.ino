@@ -67,15 +67,24 @@ void loop() {
   if(deviceReady == false){
     start();
   }
+    
+  //LEDs
+  if(isOn){
+    digitalWrite(TRIG_LED, HIGH);
+  }else{
+    digitalWrite(TRIG_LED, LOW);
+  }
+  if(deviceReady){
+        digitalWrite(STAN_LED, HIGH);
+  }else{
+     digitalWrite(STAN_LED, LOW);
+  }
   
-  if(digitalRead(TRIG_BUTTON)== HIGH and isOn == false){
+  if(digitalRead(TRIG_BUTTON)== HIGH and isOn == false and deviceReady){
      char text[] = "ON";
   bool raport = radio.write(&text, sizeof(text));
-    Serial.println(radio.write(&text, sizeof(text)));
   if (raport == true) {
-    Serial.println("ON");
-    digitalWrite(TRIG_LED, HIGH);
-       tryCounter = 0;
+    tryCounter = 0;
     isOn = true;
   }}
   aktualnyCzas = millis();
@@ -91,22 +100,17 @@ if(deviceReady and roznicaCzasu >=300UL){
     tryCounter = tryCounter + 1;   
   }else{
       tryCounter = 0;
-      digitalWrite(STAN_LED, HIGH);
-
   }
 }
 
- if(digitalRead(TRIG_BUTTON)==LOW and isOn==true){
+ if(digitalRead(TRIG_BUTTON)==LOW and isOn==true and deviceReady){
     char text[] = "OFF";
     bool raport = radio.write(&text, sizeof(text));
     if(raport ==true){
-    digitalWrite(TRIG_LED, LOW);
     isOn = false;
   }}
-  if(tryCounter>5){
+  if(tryCounter>2){
     tryCounter = 0;
-    digitalWrite(STAN_LED, LOW);
-    digitalWrite(TRIG_LED, LOW);
     isOn = false;
     deviceReady = false;
   }
