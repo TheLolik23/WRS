@@ -81,7 +81,9 @@ void loop() {
   aktualnyCzas = millis();
   roznicaCzasu = aktualnyCzas - zapamietanyCzas;
   
-if(deviceReady and roznicaCzasu >=200UL){
+  
+if(deviceReady and roznicaCzasu >=300UL){
+  zapamietanyCzas = aktualnyCzas;
   char text[] ="CONTROL";
   Serial.println("control");
   bool recive = radio.write(&text, sizeof(text));
@@ -101,7 +103,7 @@ if(deviceReady and roznicaCzasu >=200UL){
     digitalWrite(TRIG_LED, LOW);
     isOn = false;
   }}
-  if(tryCounter>20){
+  if(tryCounter>5){
     tryCounter = 0;
     digitalWrite(STAN_LED, LOW);
     digitalWrite(TRIG_LED, LOW);
