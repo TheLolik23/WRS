@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-#include <MultiPressButton.h>
+#include <PinButton.h>
 
 RF24 radio(7, 8);  // CE, CSN
 const byte address[6] = "WRS01";
@@ -9,9 +9,9 @@ const byte address[6] = "WRS01";
 
 #define TRIG_LED 9  //led pokazujący stan spustu
 #define STAN_LED 10  //led syg. wiele rzeczy
-MultiPressButton button(2);
 #define TRIG_BUTTON 2  //przycisk od spustu
 #define BATT_BUTTON 3  //przycisk od sprawdzania stanu baterii
+PinButton batt_BUTTON(3);
 bool isOn = false;
 int tryCounter = 0;
 bool deviceReady = false;
@@ -69,6 +69,7 @@ void setup() {
 
 
 void loop() {
+  batt_BUTTON.update();
   if(deviceReady == false){
     start();
   }
@@ -84,7 +85,7 @@ void loop() {
   }else{
      digitalWrite(STAN_LED, LOW);
   }
-if (button.wasPressed(2)and deviceReady) {
+if (batt_BUTTON.isDoubleClick() and deviceReady) {
     Serial.println("Button was pressed twice!");
   }
   

@@ -1,4 +1,5 @@
 #include <SPI.h>
+#include <SoftwareSerial.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <Servo.h>
@@ -12,7 +13,7 @@ const byte address[6] = "WRS01";
 #define WHEN_ON A1
 #define WHEN_OFF A2
 #define BATT_BUTTON 3 //przycisk od sprawdzania stanu baterii
-
+#define BUZZER 4
 bool isOn = false;
 bool deviceReady = false;
 unsigned long aktualnyCzas = 0;
@@ -20,6 +21,7 @@ unsigned long zapamietanyCzas = 0;
 unsigned long roznicaCzasu = 0;
 bool control = true;
 byte channel = 1; // ustwa kanał na jakim ma działąć od 0 do 127
+
 int pozycja_on;
 int pozycja_off;
 
@@ -32,7 +34,8 @@ void setup(){
 
   serwo.attach(5); //przypisanie pinu do serwa
   pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);
-  serwo.write(pozycja_off); //serwo  
+  serwo.write(pozycja_off); //serwo 
+  
 
 
   Serial.begin(9600);
@@ -70,18 +73,26 @@ void loop(){
     zapamietanyCzas = aktualnyCzas;
     for(int i = 0; i<=5; i++){
         digitalWrite(STAN_LED, HIGH);
+        digitalWrite(BUZZER, HIGH);
         delay(80);
         digitalWrite(STAN_LED, LOW);
+        digitalWrite(BUZZER, LOW);
         delay(80);
         digitalWrite(STAN_LED, HIGH);
       
   }}
   if (String(text) == "ON" and deviceReady == true) {
+    Serial.println("Serwo ON");
+    pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
+    serwo.write(pozycja_on);
     isOn = true;
 
   }
 
   if (isOn == true and String(text) == "OFF") {
+     Serial.println("Serwo OFF");
+    pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);
+    serwo.write(pozycja_off);
     isOn = false;
 
   }
