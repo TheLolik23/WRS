@@ -1,14 +1,15 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <MultiPressButton.h>
 
 RF24 radio(7, 8);  // CE, CSN
 const byte address[6] = "WRS01";
 //musi być to samo w TX i RX, u nas każdy zestaw urządzeń będzie miał WRS01, WRS02...
 
-#define TRIG_LED 4  //led pokazujący stan spustu
-#define STAN_LED 5  //led syg. wiele rzeczy
-
+#define TRIG_LED 9  //led pokazujący stan spustu
+#define STAN_LED 10  //led syg. wiele rzeczy
+MultiPressButton button(2);
 #define TRIG_BUTTON 2  //przycisk od spustu
 #define BATT_BUTTON 3  //przycisk od sprawdzania stanu baterii
 bool isOn = false;
@@ -17,6 +18,7 @@ bool deviceReady = false;
 unsigned long aktualnyCzas = 0;
 unsigned long zapamietanyCzas = 0;
 unsigned long roznicaCzasu = 0;
+byte channel = 1;// ustwa kanał na jakim ma działąć od 0 do 127
 
 
 
@@ -45,16 +47,19 @@ void start(){
 }
 
 
+
 void setup() {
+
   Serial.begin(9600);
 
   pinMode(TRIG_LED, OUTPUT);
   pinMode(STAN_LED, OUTPUT);
-
+  
   pinMode(TRIG_BUTTON, INPUT_PULLUP);
   pinMode(BATT_BUTTON, INPUT_PULLUP);
 
   radio.begin();
+  radio.setChannel(channel); // od 1 do 127
   radio.openWritingPipe(address);
   radio.setPALevel(RF24_PA_MIN);  //moc nadawnia sygnału
   radio.setRetries(10, 10);
@@ -78,6 +83,9 @@ void loop() {
         digitalWrite(STAN_LED, HIGH);
   }else{
      digitalWrite(STAN_LED, LOW);
+  }
+if (button.wasPressed(2)and deviceReady) {
+    Serial.println("Button was pressed twice!");
   }
   
   if(digitalRead(TRIG_BUTTON)== HIGH and isOn == false and deviceReady){
