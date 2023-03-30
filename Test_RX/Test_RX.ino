@@ -22,6 +22,9 @@ const byte address[6] = "WRS01";
 #define BATT_LED3 A3
 #define BATT_LED4 A4
 
+
+int timer = 0;
+bool battCheck = false;
 bool isOn = false;
 bool deviceReady = false;
 unsigned long aktualnyCzas = 0;
@@ -40,7 +43,7 @@ const long interval = 2000;         // interval at which to blink (milliseconds)
 float voltage;
 
 void setup(){
-
+  Serial.begin(9600);
 
 
   pinMode(TRIG_LED, OUTPUT);
@@ -94,6 +97,43 @@ void loop(){
   if (radio.available()) {
     radio.read(&text, sizeof(text));
   }
+  if (String(text) !="" and String(text) !="CONTROL")
+  {
+    Serial.println(text);
+  }
+  
+   if (String(text) == "ON5" and deviceReady == true) {
+    Serial.println("Servo 5 sekund");
+    pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
+    serwo.write(pozycja_on);
+              serwo.write(pozycja_on);
+      isOn = true;
+      timer = 5000;
+    
+}
+
+
+   if (String(text) == "ON10" and deviceReady == true) {
+    Serial.println("Servo 10 sekund");
+    pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
+    serwo.write(pozycja_on);
+              serwo.write(pozycja_on);
+      isOn = true;
+      timer = 10000;
+    
+}
+
+    unsigned long currentMillis = millis();
+    Serial.println(currentMillis-previousMillis);
+    
+    if(currentMillis - previousMillis >= timer and battCheck == false){
+      previousMillis = currentMillis;
+     pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);
+    serwo.write(pozycja_off);
+    isOn = false;
+    timer = 0;
+  }
+
 
   if (String(text) == "READY" and deviceReady==false){
     deviceReady = true;
@@ -113,14 +153,16 @@ void loop(){
     pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
     serwo.write(pozycja_on);
     isOn = true;
+    timer = 9999999999999;
 
   }
-
+ 
   if (isOn == true and String(text) == "OFF") {
      Serial.println("Serwo OFF");
     pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);
     serwo.write(0);
     isOn = false;
+    timer = 0;
 
   }
 
@@ -145,19 +187,22 @@ if(control == false){
 if(digitalRead(BATT_BUTTON)== HIGH){
   BattChceck();
 }
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
+  currentMillis = millis();
+  if (currentMillis - previousMillis >= interval and battCheck) {
     previousMillis = currentMillis;
+    battCheck = false;
         digitalWrite(BATT_LED1, LOW);
     digitalWrite(BATT_LED2, LOW);
     digitalWrite(BATT_LED3, LOW);
     digitalWrite(BATT_LED4, LOW);
   }
-
 }
 
+
+
+
 void BattChceck() {
-  Serial.println("test");
+  battCheck = true;
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
   Serial.println(voltage);
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
@@ -211,16 +256,6 @@ void BattChceck() {
     digitalWrite(BATT_LED4, LOW);
   }else if (voltage >= 3.25) {
     //buzzer
-  }
-
-  //blink without delay
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
-        digitalWrite(BATT_LED1, LOW);
-    digitalWrite(BATT_LED2, LOW);
-    digitalWrite(BATT_LED3, LOW);
-    digitalWrite(BATT_LED4, LOW);
   }
   
   

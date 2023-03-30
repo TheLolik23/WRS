@@ -28,8 +28,9 @@ int ledState = LOW;                // ledState used to set the LED
 unsigned long previousMillis = 0;  // will store last time LED was updated
 const long interval = 2000;         // interval at which to blink (milliseconds)
 float voltage;
-byte timer = 0;
+int timer = 0;
 bool isOn = false;
+bool battCheck = false;
 int tryCounter = 0;
 bool deviceReady = false;
 unsigned long aktualnyCzas = 0;
@@ -71,6 +72,7 @@ void BattChceck() {
 
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
   Serial.println(voltage);
+  battCheck = true;
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
 
       digitalWrite(BATT_LED1, HIGH);
@@ -160,6 +162,7 @@ void loop() {
   if(deviceReady == false){
     start();
   }
+  unsigned long currentMillis = millis();
     
   //LEDs
   if(isOn){
@@ -181,15 +184,18 @@ void loop() {
         if (raport == true) {
         tryCounter = 0;
         isOn = true;
-        timer = 10;}
+        timer = 10000;
+        previousMillis = currentMillis;}
       }else if(numOfPresses ==3){
+        
     Serial.println("3 razy");
       char text[] = "ON5";
         bool raport = radio.write(&text, sizeof(text));
         if (raport == true) {
         tryCounter = 0;
         isOn = true;
-        timer = 5;}
+        timer = 5000;
+        previousMillis = currentMillis;}
       }else if(numOfPresses==1){
       Serial.println("Stan batteri");
       BattChceck();
@@ -201,7 +207,7 @@ void loop() {
 
     
   
-  if(digitalRead(TRIG_BUTTON)== HIGH and isOn == false and deviceReady and timer ==0){
+  if(digitalRead(TRIG_BUTTON)== HIGH and deviceReady and timer ==0){
      char text[] = "ON";
   bool raport = radio.write(&text, sizeof(text));
   if (raport == true) {
@@ -228,7 +234,6 @@ if(deviceReady and roznicaCzasu >=300UL){
     if(raport ==true){
     isOn = false;
     timer = 0;
-    delay(20);
   }
   if(tryCounter>2){
     tryCounter = 0;
@@ -236,26 +241,42 @@ if(deviceReady and roznicaCzasu >=300UL){
     deviceReady = false;
   }}
  
- if(digitalRead(TRIG_BUTTON)==LOW and isOn==true and deviceReady and timer == 0){
+ if(digitalRead(TRIG_BUTTON)==LOW and isOn and deviceReady and timer == 0){
     char text[] = "OFF";
+    Serial.print("off");
     bool raport = radio.write(&text, sizeof(text));
     if(raport ==true){
     isOn = false;
   }}
   if(tryCounter>2){
     tryCounter = 0;
+    Serial.print("Error");
     isOn = false;
     deviceReady = false;
   }
 
-    unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
+  
+    if(currentMillis - previousMillis >= timer and isOn and timer>10){
+      Serial.print("IN");
+      previousMillis = currentMillis;
+      isOn = false;
+      timer = 0;
+  }
+
+
+
+
+
+  
+/*currentMillis = millis();
+  if (currentMillis - previousMillis >= interval and battCheck) {
+    battCheck = false;
     previousMillis = currentMillis;
         digitalWrite(BATT_LED1, LOW);
     digitalWrite(BATT_LED2, LOW);
     digitalWrite(BATT_LED3, LOW);
     digitalWrite(BATT_LED4, LOW);
-  }
+  }*/
   }
 
   
