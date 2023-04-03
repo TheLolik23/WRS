@@ -18,7 +18,7 @@ const byte address[6] = "WRS01";
 #define BATT_LED2 A2
 #define BATT_LED3 A3
 #define BATT_LED4 A4
-#define BUZZER 
+#define BUZZER 4
 //ustawienie multiclicku na przycisku Button nazwaPrzycisku(pin,true,jak długo ma czekać miedyz kliknięciami [ms])
 Button batt_BUTTON(3,true,70);
 
@@ -36,7 +36,7 @@ unsigned long aktualnyCzas = 0;
 unsigned long zapamietanyCzas = 0;
 unsigned long roznicaCzasu = 0;
 byte channel = 1;// ustwa kanał na jakim ma działąć od 0 do 127
-
+int ledState = LOW;
 
 
 void Ready(){
@@ -59,15 +59,19 @@ void start(){
         const char text[] = "READY";
         radio.write(&text, sizeof(text));
         digitalWrite(STAN_LED, LOW);
+        delay(50);
+        digitalWrite(STAN_LED, HIGH);
+        delay(50);
+        digitalWrite(TRIG_LED, LOW);
+
     }
      Ready();
 }
 
 void BattChceck() {
 
-  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
-  Serial.println(voltage);
-  battCheck = true;
+   //sprawdzamy czy napięcie jest większe bądź równe krytycznemu (3,1V), jeśli większe to sprawdzanie baterii działa normalnie
+  if(digitalRead(BATT_BUTTON)==HIGH){
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
 
       digitalWrite(BATT_LED1, HIGH);
@@ -96,21 +100,23 @@ void BattChceck() {
       digitalWrite(BATT_LED3, LOW);
       digitalWrite(BATT_LED4, HIGH);
 
-    } else if (voltage < 3.25) {  //napięcie poniżej 3,25V - 0 ledów
+    } else if (voltage < 3.2) {  //napięcie poniżej 3,25V - 0 ledów
 
       digitalWrite(BATT_LED1, LOW);
       digitalWrite(BATT_LED2, LOW);
       digitalWrite(BATT_LED3, LOW);
       digitalWrite(BATT_LED4, LOW);
- 
-  } else {
+    }
+    
+    } else {
 
-    digitalWrite(BATT_LED1, LOW);
-    digitalWrite(BATT_LED2, LOW);
-    digitalWrite(BATT_LED3, LOW);
-    digitalWrite(BATT_LED4, LOW);
+      digitalWrite(BATT_LED1, LOW);
+      digitalWrite(BATT_LED2, LOW);
+      digitalWrite(BATT_LED3, LOW);
+      digitalWrite(BATT_LED4, LOW);
+      digitalWrite(BUZZER, LOW);
+    }
   }
-}
 
 
 
@@ -140,6 +146,16 @@ void setup() {
 
 
 void loop() {
+  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+  
+  while(voltage<=3.1){
+    digitalWrite(BATT_LED4, HIGH);
+    digitalWrite(BUZZER, HIGH);
+    delay(50);
+    digitalWrite(BATT_LED4, LOW);
+    digitalWrite(BUZZER, LOW);
+    delay(50);
+  }
   if(deviceReady == false){
     start();
   }
@@ -195,9 +211,12 @@ void loop() {
     tryCounter = 0;
     isOn = true;
   }}
+  
   aktualnyCzas = millis();
   roznicaCzasu = aktualnyCzas - zapamietanyCzas;
   
+
+
   
 if(deviceReady and roznicaCzasu >=300UL){
   zapamietanyCzas = aktualnyCzas;

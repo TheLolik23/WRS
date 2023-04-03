@@ -77,6 +77,20 @@ void setup(){
 void loop(){
   currentTimer = millis(); //ustawinie obecnego czsu dla modułu controlnego
   timerDiffrence = currentTimer - lastTimer;
+
+  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+  
+  while(voltage<=3.1){
+    digitalWrite(BATT_LED4, HIGH);
+    digitalWrite(BUZZER, HIGH);
+    delay(50);
+    digitalWrite(BATT_LED4, LOW);
+    digitalWrite(BUZZER, LOW);
+    delay(50);
+  }
+
+
+
   
  //Ustawienia LED dla danego statusu
   if(isOn){
@@ -84,11 +98,14 @@ void loop(){
   }else{
     digitalWrite(TRIG_LED, LOW);
   }
+  Serial.println(deviceReady);
   if(deviceReady){
         digitalWrite(STAN_LED, HIGH);
+        
   }else{
-     digitalWrite(STAN_LED, LOW);
-  }
+    digitalWrite(STAN_LED, LOW);
+    delay(50);
+    }
 
   //odbieranie widomości przez system radiowy
   const char text[32] = "";
@@ -98,18 +115,7 @@ void loop(){
 
   //sprawedzanie poszczególnych wiadomości
    if (String(text) == "ON5" and deviceReady == true) {
-    //Serial.println("Servo 5 sekund");
-    pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
-    serwo.write(pozycja_on);
-              serwo.write(pozycja_on);
-      isOn = true;
-      timer = 5000;
-    
-}
-
-
-   if (String(text) == "ON10" and deviceReady == true) {
-   // Serial.println("Servo 10 sekund");
+    //Serial.println("Servo 10 sekund");
     pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
     serwo.write(pozycja_on);
               serwo.write(pozycja_on);
@@ -117,9 +123,19 @@ void loop(){
       timer = 10000;
     
 }
+
+
+   if (String(text) == "ON10" and deviceReady == true) {
+   // Serial.println("Servo 20 sekund");
+    pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
+    serwo.write(pozycja_on);
+              serwo.write(pozycja_on);
+      isOn = true;
+      timer = 20000;
+    
+}
 //System kończący tryb automatycznu w zależności od wybranej opcji (5000ms albo 10000ms)
     unsigned long currentMillis = millis();
-    Serial.println(currentMillis-previousMillis);
     
     if(currentMillis - previousMillis >= timer and battCheck == false){
       previousMillis = currentMillis;
@@ -161,6 +177,14 @@ void loop(){
 
   }
 
+if (deviceReady == false and timerDiffrence >=100UL) {
+    lastTimer = currentTimer;
+    digitalWrite(STAN_LED, HIGH);
+    delay(50);
+}
+
+
+
 if (String(text) == "CONTROL" and timerDiffrence >=100UL) {
     control = true;
     lastTimer = currentTimer;
@@ -177,6 +201,8 @@ if(control == false){ // system awaryjnego wyłączenia urządzenie w przypadku 
   isOn = false;
   control = true;
   lastTimer = currentTimer;
+  pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);
+  serwo.write(pozycja_off);
 }
   
 if(digitalRead(BATT_BUTTON)== HIGH){
@@ -198,8 +224,7 @@ if(digitalRead(BATT_BUTTON)== HIGH){
 
 void BattChceck() { // to jest skopiowane więc nie wiem jak to działa. jak chcesz coś dodać to zrób to sam ;-*
   battCheck = true;
-  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
-  Serial.println(voltage);
+  if(digitalRead(BATT_BUTTON)==HIGH){
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
 
       digitalWrite(BATT_LED1, HIGH);
@@ -228,18 +253,20 @@ void BattChceck() { // to jest skopiowane więc nie wiem jak to działa. jak chc
       digitalWrite(BATT_LED3, LOW);
       digitalWrite(BATT_LED4, HIGH);
 
-    } else if (voltage < 3.25) {  //napięcie poniżej 3,25V - 0 ledów
+    } else if (voltage < 3.2) {  //napięcie poniżej 3,25V - 0 ledów
 
       digitalWrite(BATT_LED1, LOW);
       digitalWrite(BATT_LED2, LOW);
       digitalWrite(BATT_LED3, LOW);
       digitalWrite(BATT_LED4, LOW);
- 
-  } else {
+    }
+    
+    } else {
 
-    digitalWrite(BATT_LED1, LOW);
-    digitalWrite(BATT_LED2, LOW);
-    digitalWrite(BATT_LED3, LOW);
-    digitalWrite(BATT_LED4, LOW);
-  }
+      digitalWrite(BATT_LED1, LOW);
+      digitalWrite(BATT_LED2, LOW);
+      digitalWrite(BATT_LED3, LOW);
+      digitalWrite(BATT_LED4, LOW);
+      digitalWrite(BUZZER, LOW);
+    }
 }
