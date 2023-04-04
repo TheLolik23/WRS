@@ -45,8 +45,10 @@ void Ready(){
   if(deviceReady!=true){
   for(int i = 0; i<=5; i++){
         digitalWrite(STAN_LED, HIGH);
+        digitalWrite(BUZZER, HIGH);
         delay(80);
         digitalWrite(STAN_LED, LOW);
+        digitalWrite(BUZZER, LOW);
         delay(80);
         deviceReady = true;
         digitalWrite(STAN_LED, HIGH);
@@ -114,7 +116,13 @@ void Start(){
   while(radio.write(&text, sizeof(text))!= true){ //wysyłanie sygnału do czasu sparowania
   if(digitalRead(BATT_BUTTON)==HIGH){
   BattChceck();    
-  }
+  }else{  //napięcie poniżej 3,25V - 0 ledów
+
+      digitalWrite(BATT_LED1, LOW);
+      digitalWrite(BATT_LED2, LOW);
+      digitalWrite(BATT_LED3, LOW);
+      digitalWrite(BATT_LED4, LOW);
+    }
 
   
   

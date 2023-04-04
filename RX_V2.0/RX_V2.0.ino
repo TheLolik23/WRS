@@ -91,14 +91,6 @@ void start(){
     delay(150);
   }
 }
-
-
-
-
-
-
-
-
 void setup(){
   Serial.begin(9600);
 
@@ -209,7 +201,6 @@ void loop(){
 
   if (String(text) == "READY" and deviceReady==false){
     deviceReady = true;
-    lastTimer = currentTimer;
     for(int i = 0; i<=5; i++){ //efekt ledów oraz buzera przy parowaniu
         digitalWrite(STAN_LED, HIGH);
         digitalWrite(BUZZER, HIGH);
@@ -219,7 +210,9 @@ void loop(){
         delay(80);
         digitalWrite(STAN_LED, HIGH);
       
-  }}
+  }
+  lastTimer = currentTimer;
+  }
   if (String(text) == "ON" and deviceReady == true) {
    // Serial.println("Serwo ON");
     pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
@@ -250,7 +243,7 @@ if (String(text) == "CONTROL" and timerDiffrence >=100UL) {
     control = true;
     lastTimer = currentTimer;
     
-}else if(timerDiffrence >=1000UL and deviceReady){ // określa czy urządzenie otrzymuje sygnał kontrolny. I tak wiem że można by to było zrobić bardziej efektywnie
+}else if(timerDiffrence >=1500UL and deviceReady){ // określa czy urządzenie otrzymuje sygnał kontrolny. I tak wiem że można by to było zrobić bardziej efektywnie
       control = false;
       lastTimer = currentTimer;
       
@@ -269,27 +262,13 @@ if(control == false){ // system awaryjnego wyłączenia urządzenie w przypadku 
 if(digitalRead(BATT_BUTTON)== HIGH){
   BattChceck();
 }else {
-
       digitalWrite(BATT_LED1, LOW);
       digitalWrite(BATT_LED2, LOW);
       digitalWrite(BATT_LED3, LOW);
       digitalWrite(BATT_LED4, LOW);
       digitalWrite(BUZZER, LOW);
     }
-  currentMillis = millis();
-  if (currentMillis - previousMillis >= interval and battCheck) {
-    previousMillis = currentMillis;
-    battCheck = false;
-        digitalWrite(BATT_LED1, LOW);
-    digitalWrite(BATT_LED2, LOW);
-    digitalWrite(BATT_LED3, LOW);
-    digitalWrite(BATT_LED4, LOW);
-  }
 }
-
-
-
-
 void BattChceck() { // to jest skopiowane więc nie wiem jak to działa. jak chcesz coś dodać to zrób to sam ;-*
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
 
@@ -326,5 +305,4 @@ void BattChceck() { // to jest skopiowane więc nie wiem jak to działa. jak chc
       digitalWrite(BATT_LED3, LOW);
       digitalWrite(BATT_LED4, LOW);
     }
-    
-    } 
+ } 
