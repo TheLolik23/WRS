@@ -17,10 +17,10 @@ const byte address[6] = "WRS01"; //musi być to samo w TX i RX, u nas każdy zes
 
 #define VOL_METER A0 // voltage metter - sprawdza napięcię na paterii
 //Ledy od poziomu baterii
-#define BATT_LED1 A1
-#define BATT_LED2 A2
-#define BATT_LED3 A3
-#define BATT_LED4 A4
+#define BATT_LED1 A4  //ziel2
+#define BATT_LED2 A3  //ziel1
+#define BATT_LED3 A2  //zolty
+#define BATT_LED4 A1 //czerwony
 
 
 int timer = 0; // podstawowe ustawienie timera odmierzającego czas trybów automatycznych
@@ -140,6 +140,8 @@ void loop(){
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   
   while(voltage<=3.1){
+    voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+    digitalWrite(STAN_LED, LOW);
     digitalWrite(BATT_LED4, HIGH);
     digitalWrite(BUZZER, HIGH);
     delay(50);
@@ -266,7 +268,14 @@ if(control == false){ // system awaryjnego wyłączenia urządzenie w przypadku 
   
 if(digitalRead(BATT_BUTTON)== HIGH){
   BattChceck();
-}
+}else {
+
+      digitalWrite(BATT_LED1, LOW);
+      digitalWrite(BATT_LED2, LOW);
+      digitalWrite(BATT_LED3, LOW);
+      digitalWrite(BATT_LED4, LOW);
+      digitalWrite(BUZZER, LOW);
+    }
   currentMillis = millis();
   if (currentMillis - previousMillis >= interval and battCheck) {
     previousMillis = currentMillis;
@@ -282,8 +291,6 @@ if(digitalRead(BATT_BUTTON)== HIGH){
 
 
 void BattChceck() { // to jest skopiowane więc nie wiem jak to działa. jak chcesz coś dodać to zrób to sam ;-*
-  battCheck = true;
-  if(digitalRead(BATT_BUTTON)==HIGH){
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
 
       digitalWrite(BATT_LED1, HIGH);
@@ -320,12 +327,4 @@ void BattChceck() { // to jest skopiowane więc nie wiem jak to działa. jak chc
       digitalWrite(BATT_LED4, LOW);
     }
     
-    } else {
-
-      digitalWrite(BATT_LED1, LOW);
-      digitalWrite(BATT_LED2, LOW);
-      digitalWrite(BATT_LED3, LOW);
-      digitalWrite(BATT_LED4, LOW);
-      digitalWrite(BUZZER, LOW);
-    }
-}
+    } 

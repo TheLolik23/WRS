@@ -14,18 +14,20 @@ const byte address[6] = "WRS01";
 #define TRIG_BUTTON 2  //przycisk od spustu
 #define BATT_BUTTON 3  //przycisk od sprawdzania stanu baterii
 #define VOL_METER A0
-#define BATT_LED1 A1  //ziel2
-#define BATT_LED2 A2  //ziel1
-#define BATT_LED3 A3  //zolty
-#define BATT_LED4 A4 //czerwony
+#define BATT_LED1 A4  //ziel2
+#define BATT_LED2 A3  //ziel1
+#define BATT_LED3 A2  //zolty
+#define BATT_LED4 A1 //czerwony
 #define BUZZER 4
+
 //ustawienie multiclicku na przycisku Button nazwaPrzycisku(pin,true,jak długo ma czekać miedyz kliknięciami [ms])
 Button batt_BUTTON(3,true,70);
 
 
 
 unsigned long previousMillis = 0;  // will store last time LED was updated
-const long interval = 2000;         // interval at which to blink (milliseconds)
+const long interval = 2000;   
+bool start = false;// interval at which to blink (milliseconds)
 float voltage;
 int timer = 0;
 bool isOn = false;
@@ -52,8 +54,9 @@ void Ready(){
 }
 
 
-void start(){
-
+void Start(){
+  if(start==false){
+    start = true;
   for (int a = 0; a <= 11; a++) {  // for do ledow
     switch (a) {
        case (0):
@@ -95,7 +98,7 @@ void start(){
         break;
     }
     delay(100);
-  }
+  }}
 
   for (int a = 0; a != 2; a++) {  // for do buzzera
     digitalWrite(BUZZER, HIGH);
@@ -106,23 +109,25 @@ void start(){
 
 
 
-
-
-
-  
   const char text[] = "READY";
   radio.write(&text, sizeof(text));
-   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+  while(radio.write(&text, sizeof(text))!= true){ //wysyłanie sygnału do czasu sparowania
+  if(digitalRead(BATT_BUTTON)==HIGH){
+  BattChceck();    
+  }
+
+  
+  
+  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   while(voltage<=3.1){
     voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
-  
+    digitalWrite(STAN_LED, LOW);
     digitalWrite(BATT_LED4, HIGH);
     digitalWrite(BUZZER, HIGH);
     delay(50);
     digitalWrite(BATT_LED4, LOW);
     digitalWrite(BUZZER, LOW);
     delay(50);}
-  while(radio.write(&text, sizeof(text))!= true){ //wysyłanie sygnału do czasu sparowania
         const char text[] = "READY";
         radio.write(&text, sizeof(text));
         digitalWrite(STAN_LED, LOW);
@@ -136,9 +141,8 @@ void start(){
 }
 
 void BattChceck() {
-
+    Serial.println("Battery");
    //sprawdzamy czy napięcie jest większe bądź równe krytycznemu (3,1V), jeśli większe to sprawdzanie baterii działa normalnie
-  if(digitalRead(BATT_BUTTON)==HIGH){
     if (voltage >= 4.00) {  //napięcie 4,00V i więcej - 4 ledy
 
       digitalWrite(BATT_LED1, HIGH);
@@ -175,15 +179,7 @@ void BattChceck() {
       digitalWrite(BATT_LED4, LOW);
     }
     
-    } else {
-
-      digitalWrite(BATT_LED1, LOW);
-      digitalWrite(BATT_LED2, LOW);
-      digitalWrite(BATT_LED3, LOW);
-      digitalWrite(BATT_LED4, LOW);
-      digitalWrite(BUZZER, LOW);
-    }
-  }
+}
 
 
 
@@ -208,7 +204,7 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);  //moc nadawnia sygnału
   radio.setRetries(10, 10);
   radio.stopListening();//(próba wysłania co 10 * 0,25ms = 2,5ms, 10 prób)
-  start();
+  Start();
 }
 
 
@@ -216,15 +212,16 @@ void loop() {
   
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   while(voltage<=3.1){
+    voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
     digitalWrite(BATT_LED4, HIGH);
     digitalWrite(BUZZER, HIGH);
     delay(50);
     digitalWrite(BATT_LED4, LOW);
-    digitalWrite(BUZZER, LOW);
+    digitalWrite(BUZZER,LOW);
     delay(50);
   }
   if(deviceReady == false){
-    start();
+    Start();
   }
   unsigned long currentMillis = millis();
     
@@ -260,11 +257,7 @@ void loop() {
         isOn = true;
         timer = 5000;
         previousMillis = currentMillis;}
-      }else if(numOfPresses==1){
-      Serial.println("Stan batteri");
-      BattChceck();
-}            
-  }
+      }}
   }else{
      digitalWrite(STAN_LED, LOW);
   }
@@ -282,7 +275,16 @@ void loop() {
   aktualnyCzas = millis();
   roznicaCzasu = aktualnyCzas - zapamietanyCzas;
   
+if(digitalRead(BATT_BUTTON)==HIGH){
+  BattChceck();
+}else {
 
+      digitalWrite(BATT_LED1, LOW);
+      digitalWrite(BATT_LED2, LOW);
+      digitalWrite(BATT_LED3, LOW);
+      digitalWrite(BATT_LED4, LOW);
+      digitalWrite(BUZZER, LOW);
+    }
 
   
 if(deviceReady and roznicaCzasu >=300UL){
