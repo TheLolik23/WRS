@@ -40,6 +40,64 @@ int pozycja_off;
 unsigned long previousMillis = 0;
 const long interval = 2000;       
 float voltage;
+void start(){
+  for (int a = 0; a <= 11; a++) {  // for do ledow
+    switch (a) {
+       case (0):
+        digitalWrite(STAN_LED, HIGH);
+        break;
+      case (1):
+        digitalWrite(BATT_LED4, HIGH);
+        break;
+      case (2):
+        digitalWrite(BATT_LED3, HIGH);
+        break;
+      case (3):
+        digitalWrite(BATT_LED2, HIGH);
+        break;
+      case (4):
+        digitalWrite(BATT_LED1, HIGH);
+        break;
+      case (5):
+      digitalWrite(TRIG_LED, HIGH);
+        delay(100);
+        break;
+      case (6):
+        digitalWrite(TRIG_LED, LOW);
+        break;
+      case (7):
+        digitalWrite(BATT_LED1, LOW);
+        break;
+      case (8):
+      digitalWrite(BATT_LED2, LOW);
+        break;
+      case (9):
+        digitalWrite(BATT_LED3, LOW);
+        break;
+       case (10):
+        digitalWrite(BATT_LED4, LOW);
+        break;
+        case (11):
+        digitalWrite(STAN_LED, LOW);
+        break;
+    }
+    delay(100);
+  }
+
+  for (int a = 0; a != 2; a++) {  // for do buzzera
+    digitalWrite(BUZZER, HIGH);
+    delay(150);
+    digitalWrite(BUZZER, LOW);
+    delay(150);
+  }
+}
+
+
+
+
+
+
+
 
 void setup(){
   Serial.begin(9600);
@@ -72,6 +130,7 @@ void setup(){
   radio.setPALevel(RF24_PA_MIN);  //moc nadawnia sygnału
   radio.setRetries(10, 10);       //(próba wysłania co 10 * 0,25ms = 2,5ms, 10 prób)
   radio.startListening();//Włączenie nasłuchiwania na radio
+  start();
 }
 
 void loop(){

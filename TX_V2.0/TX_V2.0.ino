@@ -14,10 +14,10 @@ const byte address[6] = "WRS01";
 #define TRIG_BUTTON 2  //przycisk od spustu
 #define BATT_BUTTON 3  //przycisk od sprawdzania stanu baterii
 #define VOL_METER A0
-#define BATT_LED1 A1
-#define BATT_LED2 A2
-#define BATT_LED3 A3
-#define BATT_LED4 A4
+#define BATT_LED1 A1  //ziel2
+#define BATT_LED2 A2  //ziel1
+#define BATT_LED3 A3  //zolty
+#define BATT_LED4 A4 //czerwony
 #define BUZZER 4
 //ustawienie multiclicku na przycisku Button nazwaPrzycisku(pin,true,jak długo ma czekać miedyz kliknięciami [ms])
 Button batt_BUTTON(3,true,70);
@@ -53,6 +53,63 @@ void Ready(){
 
 
 void start(){
+
+  for (int a = 0; a <= 11; a++) {  // for do ledow
+    switch (a) {
+       case (0):
+        digitalWrite(STAN_LED, HIGH);
+        break;
+      case (1):
+        digitalWrite(BATT_LED4, HIGH);
+        break;
+      case (2):
+        digitalWrite(BATT_LED3, HIGH);
+        break;
+      case (3):
+        digitalWrite(BATT_LED2, HIGH);
+        break;
+      case (4):
+        digitalWrite(BATT_LED1, HIGH);
+        break;
+      case (5):
+      digitalWrite(TRIG_LED, HIGH);
+        delay(100);
+        break;
+      case (6):
+        digitalWrite(TRIG_LED, LOW);
+        break;
+      case (7):
+        digitalWrite(BATT_LED1, LOW);
+        break;
+      case (8):
+      digitalWrite(BATT_LED2, LOW);
+        break;
+      case (9):
+        digitalWrite(BATT_LED3, LOW);
+        break;
+       case (10):
+        digitalWrite(BATT_LED4, LOW);
+        break;
+        case (11):
+        digitalWrite(STAN_LED, LOW);
+        break;
+    }
+    delay(100);
+  }
+
+  for (int a = 0; a != 2; a++) {  // for do buzzera
+    digitalWrite(BUZZER, HIGH);
+    delay(150);
+    digitalWrite(BUZZER, LOW);
+    delay(150);
+  }
+
+
+
+
+
+
+  
   const char text[] = "READY";
   radio.write(&text, sizeof(text));
    voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
@@ -273,20 +330,6 @@ if(deviceReady and roznicaCzasu >=300UL){
       timer = 0;
   }
 
-
-
-
-
-  
-/*currentMillis = millis();
-  if (currentMillis - previousMillis >= interval and battCheck) {
-    battCheck = false;
-    previousMillis = currentMillis;
-        digitalWrite(BATT_LED1, LOW);
-    digitalWrite(BATT_LED2, LOW);
-    digitalWrite(BATT_LED3, LOW);
-    digitalWrite(BATT_LED4, LOW);
-  }*/
   }
 
   
