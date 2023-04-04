@@ -55,6 +55,16 @@ void Ready(){
 void start(){
   const char text[] = "READY";
   radio.write(&text, sizeof(text));
+   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+  while(voltage<=3.1){
+    voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+  
+    digitalWrite(BATT_LED4, HIGH);
+    digitalWrite(BUZZER, HIGH);
+    delay(50);
+    digitalWrite(BATT_LED4, LOW);
+    digitalWrite(BUZZER, LOW);
+    delay(50);}
   while(radio.write(&text, sizeof(text))!= true){ //wysyłanie sygnału do czasu sparowania
         const char text[] = "READY";
         radio.write(&text, sizeof(text));
@@ -146,8 +156,8 @@ void setup() {
 
 
 void loop() {
-  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   
+  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   while(voltage<=3.1){
     digitalWrite(BATT_LED4, HIGH);
     digitalWrite(BUZZER, HIGH);
