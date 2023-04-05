@@ -253,7 +253,7 @@ void loop() {
         if (raport == true) {
         tryCounter = 0;
         isOn = true;
-        timer = 10000;
+        timer = 20000;
         previousMillis = currentMillis;}
       }else if(numOfPresses ==3){
         
@@ -263,7 +263,7 @@ void loop() {
         if (raport == true) {
         tryCounter = 0;
         isOn = true;
-        timer = 5000;
+        timer = 10000;
         previousMillis = currentMillis;}
       }}
   }else{
