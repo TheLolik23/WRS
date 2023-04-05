@@ -130,9 +130,11 @@ void loop(){
   timerDiffrence = currentTimer - lastTimer;
 
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
-  
+  pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);//ustalenie pozycji off
   while(voltage<=3.1){
+    serwo.write(pozycja_off); //ustawienie serwa w pozycji off
     voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
+    digitalWrite(TRIG_LED, LOW);
     digitalWrite(STAN_LED, LOW);
     digitalWrite(BATT_LED4, HIGH);
     digitalWrite(BUZZER, HIGH);
@@ -171,7 +173,6 @@ void loop(){
     //Serial.println("Servo 10 sekund");
     pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
     serwo.write(pozycja_on);
-              serwo.write(pozycja_on);
       isOn = true;
       timer = 10000;
     
@@ -182,7 +183,6 @@ void loop(){
    // Serial.println("Servo 20 sekund");
     pozycja_on = map(analogRead(WHEN_ON), 0, 1023, 0, 180);
     serwo.write(pozycja_on);
-              serwo.write(pozycja_on);
       isOn = true;
       timer = 20000;
     

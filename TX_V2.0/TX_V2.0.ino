@@ -221,6 +221,7 @@ void loop() {
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   while(voltage<=3.1){
     voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
+    digitalWrite(STAN_LED, LOW);
     digitalWrite(BATT_LED4, HIGH);
     digitalWrite(BUZZER, HIGH);
     delay(50);
