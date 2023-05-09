@@ -119,7 +119,8 @@ void setup(){
   radio.begin();
   radio.setChannel(channel); // od 1 do 127
   radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_MIN);  //moc nadawnia sygnału
+  radio.setPALevel(RF24_PA_MAX,1);  //moc nadawnia sygnału
+  radio.setDataRate(RF24_250KBPS);
   radio.setRetries(10, 10);       //(próba wysłania co 10 * 0,25ms = 2,5ms, 10 prób)
   radio.startListening();//Włączenie nasłuchiwania na radio
   start();
@@ -129,9 +130,8 @@ void loop(){
   currentTimer = millis(); //ustawinie obecnego czsu dla modułu controlnego
   timerDiffrence = currentTimer - lastTimer;
 
-  voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
   pozycja_off = map(analogRead(WHEN_OFF), 0, 1023, 0, 180);//ustalenie pozycji off
-  while(voltage<=3.1){
+  while(1<=0){4
     serwo.write(pozycja_off); //ustawienie serwa w pozycji off
     voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
     digitalWrite(TRIG_LED, LOW);
@@ -197,6 +197,10 @@ void loop(){
     isOn = false;
     timer = 0;
   }
+if (String(text) == "CONTROL" and deviceReady==false){
+    deviceReady = true;
+}
+
 
 
   if (String(text) == "READY" and deviceReady==false){

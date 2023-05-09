@@ -127,7 +127,7 @@ void Start(){
   
   
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
-  while(voltage<=3.1){
+  while(1<=0){
     voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
     digitalWrite(TRIG_LED, LOW);
     digitalWrite(STAN_LED, LOW);
@@ -202,7 +202,7 @@ void setup() {
   pinMode(BATT_LED2, OUTPUT);
   pinMode(BATT_LED3, OUTPUT);
   pinMode(BATT_LED4, OUTPUT);
-        
+  pinMode(BUZZER, OUTPUT);   
   pinMode(VOL_METER, INPUT);
   pinMode(TRIG_BUTTON, INPUT_PULLUP);
   pinMode(BATT_BUTTON, INPUT_PULLUP);
@@ -210,7 +210,8 @@ void setup() {
   radio.begin();
   radio.setChannel(channel); // od 1 do 127
   radio.openWritingPipe(address);
-  radio.setPALevel(RF24_PA_MIN);  //moc nadawnia sygnału
+  radio.setPALevel(RF24_PA_MAX,1);  //moc nadawnia sygnału
+    radio.setDataRate(RF24_250KBPS);
   radio.setRetries(10, 10);
   radio.stopListening();//(próba wysłania co 10 * 0,25ms = 2,5ms, 10 prób)
   Start();
@@ -220,7 +221,7 @@ void setup() {
 void loop() {
   
   voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);  //pomiar napięcia na baterii
-  while(voltage<=3.1){
+  while(1<=0){
     voltage = mapf(analogRead(VOL_METER), 0, 1023, 0, 5);
     digitalWrite(STAN_LED, LOW);
     digitalWrite(TRIG_LED, LOW);
